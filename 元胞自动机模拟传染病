@@ -1,0 +1,57 @@
+close;
+clear;
+clc;
+n = 500;     %元胞矩阵大小
+recoverrate = 1;
+infectionrate=0.9;
+deathrate=0.05;
+UL = [n 1:n-1];
+DR = [2:n 1];
+veg = 2.*ones(n,n);        %初始化
+for i=1:10000
+    X=randi([2 499]);
+    Y=randi([2 499]);
+    veg(X,Y)=1;
+end
+imh = image(cat(3,veg,veg,veg));
+m=annotation('textbox',[0.1,0.1,0.1,0.1],'LineStyle','-','LineWidth',1,'String','123');
+for i = 1:100000
+    sum = (veg(UL,:) == 2) + (veg(:,UL) == 2) + (veg(DR,:) == 2) + (veg(:,DR) == 2);
+    %根据规则更新矩阵
+    veg = 2 * (veg == 2) -( (veg == 2) & (((veg(UL,:) == 1) | (veg(:,UL) == 1) | (veg(DR,:) == 1) | (veg(:,DR) == 1) )& (rand(n,n) < infectionrate)) ) - 1 * ( (veg == 1) & rand(n,n) < recoverrate);
+    a=find(veg==2);
+    b=find(veg==1);
+    c=find(veg==0);
+    aa=length(a);
+    bb=length(b);
+    cc=length(c);
+    died=ceil(cc*deathrate);
+    recovered=floor(cc-cc*deathrate);
+    healthyperson(i)=aa;
+    patient(i)=bb*30;
+    if (bb>=0&&bb<=10)
+        str1='疫情轻微';
+    elseif (bb>10&&bb<=100)
+        str1='疫情发展';
+    elseif (bb>100)
+        str1='疫情严重蔓延';
+    end
+    
+    str=[str1 10 ];
+    set(imh, 'cdata', cat(3, (veg == 1), (veg == 2), (veg==0)) )
+    drawnow
+    figure(2)
+    delete(m)
+    plot(healthyperson);
+    hold on
+    plot(patient);
+    hold on;
+    plot(recovered);
+    hold on;
+    plot(died);
+    legend(['未感染人数',num2str(aa)],['新增患者数量',num2str(bb)],['治愈数量',num2str(recovered)],['病亡数量',num2str(died)]);
+    title(['时间T=',num2str(i),'周']);
+    m=annotation('textbox',[0.15,0.8,0.1,0.1],'LineStyle','-','LineWidth',1,'String',str);
+    hold off
+    pause(1)
+end
