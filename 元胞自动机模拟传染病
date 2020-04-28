@@ -1,21 +1,26 @@
+%%运行在matlab2018a上
+%%用元胞自动机来模拟传染病的发生和传播规律
+%%可以对传染率，治愈速度，死亡率，治愈率等参数进行调整
+%%使用了250000规模的元胞群体，能仿真中小型城市的传染情况
+
 close;
 clear;
 clc;
 n = 500;     %元胞矩阵大小
-recoverrate = 1;
-infectionrate=0.9;
-deathrate=0.05;
-UL = [n 1:n-1];
+recoverrate = 1;%%治愈率：在单位时间内已发病病人被治愈的概率，用来控制疾病被治愈的速度
+infectionrate=0.9;%%传染率：在单位时间内将疾病传递给相邻元胞的概率，用来控制传染病的传播速度
+deathrate=0.05;%%死亡率：用来控制患病病人治愈和死亡比例
+UL = [n 1:n-1];%%定义相邻元胞
 DR = [2:n 1];
-veg = 2.*ones(n,n);        %初始化
-for i=1:10000
+veg = 2.*ones(n,n);        %初始化，生成500*500的元胞矩阵，并且假设全为健康人
+for i=1:10000%%产生10000人的初始患病群体
     X=randi([2 499]);
     Y=randi([2 499]);
     veg(X,Y)=1;
 end
 imh = image(cat(3,veg,veg,veg));
 m=annotation('textbox',[0.1,0.1,0.1,0.1],'LineStyle','-','LineWidth',1,'String','123');
-for i = 1:100000
+for i = 1:100000%%进行100000单位时间的模拟
     sum = (veg(UL,:) == 2) + (veg(:,UL) == 2) + (veg(DR,:) == 2) + (veg(:,DR) == 2);
     %根据规则更新矩阵
     veg = 2 * (veg == 2) -( (veg == 2) & (((veg(UL,:) == 1) | (veg(:,UL) == 1) | (veg(DR,:) == 1) | (veg(:,DR) == 1) )& (rand(n,n) < infectionrate)) ) - 1 * ( (veg == 1) & rand(n,n) < recoverrate);
@@ -40,7 +45,7 @@ for i = 1:100000
     str=[str1 10 ];
     set(imh, 'cdata', cat(3, (veg == 1), (veg == 2), (veg==0)) )
     drawnow
-    figure(2)
+    figure(2)%%绘图
     delete(m)
     plot(healthyperson);
     hold on
@@ -49,7 +54,7 @@ for i = 1:100000
     plot(recovered);
     hold on;
     plot(died);
-    legend(['未感染人数',num2str(aa)],['新增患者数量',num2str(bb)],['治愈数量',num2str(recovered)],['病亡数量',num2str(died)]);
+    legend(['未感染人数',num2str(aa)],['新增患者数量',num2str(bb)],['治愈数量',num2str(recovered)],['病亡数量',num2str(died)]);%%图例
     title(['时间T=',num2str(i),'周']);
     m=annotation('textbox',[0.15,0.8,0.1,0.1],'LineStyle','-','LineWidth',1,'String',str);
     hold off
