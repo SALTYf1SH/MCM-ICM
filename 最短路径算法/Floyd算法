@@ -1,0 +1,47 @@
+%最短路径问题
+data=xlsread('存放数据的路径，数据以excel文件存储') ;
+ L = lcm(lcm(lcm(lcm(2,3),4),5),6);
+data(data==1)=inf;
+for i=2:6
+    data(data==i)=L/i;
+end
+W=data
+k1=1;
+k2=14;
+n = length(W);
+m = 1;
+U = W;
+while m <= n
+    for i = 1 : n
+        for j = 1 : n
+            if U(i,j) > U(i,m) + U(m,j)
+                U(i,j) = U(i,m) + U(m,j);
+            end
+        end
+    end
+    m = m + 1;
+end
+u = U(k1,k2);
+P1 = zeros(1,n);
+k = 1;
+P1(k) = k2;
+V = ones(1,n)*inf;
+kk = k2;
+while kk ~= k1
+    for i = 1 : n
+        V(1,i) = U(k1,kk) - W(i,kk);
+        if V(1,i) == U(k1,i)
+            P1(k+1) = i;
+            kk = i;
+            k = k + 1;
+        end
+    end
+end
+k = 1;
+wrow = find(P1 ~= 0);
+for j = length(wrow) : (-1) : 1
+    P(k) = P1(wrow(j));
+    k = k + 1;
+end
+P(1:5),u
+%%输出最短路径以及总路线长度
